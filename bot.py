@@ -33,7 +33,7 @@ async def handle_message(message: types.Message):
     try:
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, title = download_audio(url)
-        audio_file = InputFile(file_path)  # ✅ InputFile ilə göndər
+        audio_file = InputFile(path=file_path)  # ✅ Düzgün InputFile istifadəsi
         await message.reply_audio(audio=audio_file, title=title)
         os.remove(file_path)
     except Exception as e:
