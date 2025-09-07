@@ -8,13 +8,16 @@ TOKEN = os.environ.get("BOT_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+# Thumbnail fayl
+THUMB_PATH = "bot_thumb.jpg"  # bot şəkli layihədə olmalıdır
+
 def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'song.%(ext)s',
         'noplaylist': True,
         'quiet': True,
-        'ffmpeg_location': './bin/ffmpeg',  # ffmpeg binary path
+        'ffmpeg_location': os.path.join(os.getcwd(), 'bin', 'ffmpeg'),
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -37,10 +40,13 @@ async def handle_message(message: types.Message):
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, info = download_audio(url)
         audio_file = FSInputFile(file_path)
+        thumb_file = FSInputFile(THUMB_PATH)
+        
         await message.reply_audio(
             audio=audio_file,
             title=info.get("title"),
-            duration=info.get("duration")
+            duration=info.get("duration"),
+            thumb=thumb_file
         )
         os.remove(file_path)
     except Exception as e:
