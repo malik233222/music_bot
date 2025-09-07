@@ -11,13 +11,16 @@ dp = Dispatcher()
 # Thumbnail fayl
 THUMB_PATH = "bot_thumb.jpg"  # bot şəkli layihədə olmalıdır
 
+# ffmpeg full path
+FFMPEG_PATH = os.path.join(os.getcwd(), 'bin', 'ffmpeg')
+
 def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'song.%(ext)s',
         'noplaylist': True,
         'quiet': True,
-        'ffmpeg_location': os.path.join(os.getcwd(), 'bin', 'ffmpeg'),
+        'ffmpeg_location': FFMPEG_PATH,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
