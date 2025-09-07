@@ -1,5 +1,6 @@
 import os
 import asyncio
+import subprocess
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import FSInputFile
 from yt_dlp import YoutubeDL
@@ -23,6 +24,15 @@ def download_audio(url):
         filename = ydl.prepare_filename(info)
         return filename, info  # info içində title və duration var
 
+# WebM → MP3 konvertasiyası
+def convert_to_mp3(file_path):
+    mp3_path = file_path.rsplit(".", 1)[0] + ".mp3"
+    subprocess.run([
+        "ffmpeg", "-i", file_path, "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k", mp3_path
+    ], check=True)
+    os.remove(file_path)  # Köhnə WebM faylını sil
+    return mp3_path
+
 # Mesaj handler
 @dp.message()
 async def handle_message(message: types.Message):
@@ -33,6 +43,7 @@ async def handle_message(message: types.Message):
     try:
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, info = download_audio(url)
+        file_path = convert_to_mp3(file_path)  # ✅ MP3-ə çevirmək
         audio_file = FSInputFile(file_path)
         await message.reply_audio(
             audio=audio_file,
