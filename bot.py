@@ -14,6 +14,9 @@ THUMB_PATH = "bot_thumb.jpg"  # bot şəkli layihədə olmalıdır
 # ffmpeg full path
 FFMPEG_PATH = os.path.join(os.getcwd(), 'bin', 'ffmpeg')
 
+# Caption text
+CAPTION_TEXT = "🎵 Musiqini @Chaotic_Musics_YouTube_bot vasitəsilə dinləyirsiniz!"
+
 def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -49,7 +52,8 @@ async def handle_message(message: types.Message):
             audio=audio_file,
             title=info.get("title"),
             duration=info.get("duration"),
-            thumb=thumb_file
+            thumb=thumb_file,
+            caption=CAPTION_TEXT
         )
         os.remove(file_path)
     except Exception as e:
