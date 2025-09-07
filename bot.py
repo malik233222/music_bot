@@ -3,11 +3,13 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from yt_dlp import YoutubeDL
 
-TOKEN = os.environ.get("BOT_TOKEN")  # Heroku-da Config Vars-da əlavə edəcəyik
+# Heroku / Railway-də Config Vars-da əlavə olunmuş token
+TOKEN = os.environ.get("BOT_TOKEN")
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()  # Aiogram 3.x-də boş Dispatcher yaradılır
 
+# YouTube musiqi yükləyən funksiya
 def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -20,7 +22,8 @@ def download_audio(url):
         filename = ydl.prepare_filename(info)
         return filename, info.get("title", "No title")
 
-@dp.message_handler()
+# Mesaj handler
+@dp.message()
 async def handle_message(message: types.Message):
     url = message.text.strip()
     if "youtube.com" not in url and "youtu.be" not in url:
@@ -34,8 +37,6 @@ async def handle_message(message: types.Message):
     except Exception as e:
         await message.reply(f"❌ Xəta baş verdi: {str(e)}")
 
-async def main():
-    await dp.start_polling()
-
+# Botu polling ilə işə salmaq
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(dp.start_polling(bot))
