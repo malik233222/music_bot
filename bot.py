@@ -1,7 +1,7 @@
 import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import InputFile
+from aiogram.types import FSInputFile
 from yt_dlp import YoutubeDL
 
 # Bot tokeni (Railway / Heroku Config Vars)
@@ -33,7 +33,7 @@ async def handle_message(message: types.Message):
     try:
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, title = download_audio(url)
-        audio_file = InputFile(path=file_path)  # ✅ Düzgün InputFile istifadəsi
+        audio_file = FSInputFile(file_path)  # ✅ FSInputFile ilə göndər
         await message.reply_audio(audio=audio_file, title=title)
         os.remove(file_path)
     except Exception as e:
