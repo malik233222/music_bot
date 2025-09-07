@@ -1,13 +1,14 @@
 import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
+from aiogram.types import InputFile
 from yt_dlp import YoutubeDL
 
-# Heroku / Railway-də Config Vars-da əlavə olunmuş token
+# Bot tokeni (Railway / Heroku Config Vars)
 TOKEN = os.environ.get("BOT_TOKEN")
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher()  # Aiogram 3.x-də boş Dispatcher yaradılır
+dp = Dispatcher()
 
 # YouTube musiqi yükləyən funksiya
 def download_audio(url):
@@ -32,7 +33,8 @@ async def handle_message(message: types.Message):
     try:
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, title = download_audio(url)
-        await message.reply_audio(audio=open(file_path, "rb"), title=title)
+        audio_file = InputFile(file_path)  # ✅ InputFile ilə göndər
+        await message.reply_audio(audio=audio_file, title=title)
         os.remove(file_path)
     except Exception as e:
         await message.reply(f"❌ Xəta baş verdi: {str(e)}")
