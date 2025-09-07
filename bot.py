@@ -21,7 +21,7 @@ def download_audio(url):
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
-        return filename, info.get("title", "No title")
+        return filename, info  # info içində title və duration var
 
 # Mesaj handler
 @dp.message()
@@ -32,9 +32,13 @@ async def handle_message(message: types.Message):
         return
     try:
         await message.reply("⏳ Musiqi yüklənir...")
-        file_path, title = download_audio(url)
-        audio_file = FSInputFile(file_path)  # ✅ FSInputFile ilə göndər
-        await message.reply_audio(audio=audio_file, title=title)
+        file_path, info = download_audio(url)
+        audio_file = FSInputFile(file_path)
+        await message.reply_audio(
+            audio=audio_file,
+            title=info.get("title"),
+            duration=info.get("duration")  # saniyə cinsində
+        )
         os.remove(file_path)
     except Exception as e:
         await message.reply(f"❌ Xəta baş verdi: {str(e)}")
