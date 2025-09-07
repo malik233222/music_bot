@@ -1,6 +1,5 @@
 import os
 import asyncio
-import subprocess
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import FSInputFile
 from yt_dlp import YoutubeDL
@@ -11,27 +10,25 @@ TOKEN = os.environ.get("BOT_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# YouTube musiqi yükləyən funksiya
+# YouTube musiqi yükləyən funksiya (MP3 postprocessor ilə)
 def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'song.%(ext)s',
         'noplaylist': True,
-        'quiet': True
+        'quiet': True,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
     }
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
-        return filename, info  # info içində title və duration var
-
-# WebM → MP3 konvertasiyası
-def convert_to_mp3(file_path):
-    mp3_path = file_path.rsplit(".", 1)[0] + ".mp3"
-    subprocess.run([
-        "ffmpeg", "-i", file_path, "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k", mp3_path
-    ], check=True)
-    os.remove(file_path)  # Köhnə WebM faylını sil
-    return mp3_path
+        # yt-dlp postprocessor mp3 faylı yaradır, orijinal fayl song.webm silinir
+        mp3_path = filename.rsplit(".", 1)[0] + ".mp3"
+        return mp3_path, info  # info içində title və duration var
 
 # Mesaj handler
 @dp.message()
@@ -43,7 +40,6 @@ async def handle_message(message: types.Message):
     try:
         await message.reply("⏳ Musiqi yüklənir...")
         file_path, info = download_audio(url)
-        file_path = convert_to_mp3(file_path)  # ✅ MP3-ə çevirmək
         audio_file = FSInputFile(file_path)
         await message.reply_audio(
             audio=audio_file,
